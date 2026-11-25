@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       Mark Complete Gate for H5P in LearnDash
+ * Plugin Name:       AIKellogg Mark Complete Gate
  * Plugin URI:        https://aikellogg.com/#/mark-complete-gate
  * Description:       On LearnDash lessons and topics with H5P content, the Mark Complete button stays locked until the learner has completed every H5P activity on the page.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Requires Plugins:  h5p
@@ -11,7 +11,7 @@
  * Author URI:        https://aikellogg.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       mark-complete-gate-for-h5p
+ * Text Domain:       aikellogg-mark-complete-gate
  *
  * H5P is a registered trademark of H5P Group. LearnDash is a trademark of its owner. This plugin is independent: it is
  * not made or endorsed by either.
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCGH_VERSION', '1.1.0' );
+define( 'MCGH_VERSION', '1.1.1' );
 
 /**
  * The post types whose pages have LearnDash's Mark Complete button: lessons and topics (filterable).
@@ -95,10 +95,10 @@ function mcgh_enqueue() {
 		'MCGH',
 		array(
 			'ignore'   => mcgh_page_settings()['ignore'],
-			'message'  => __( 'Please complete the H5P activity to enable the "Mark Complete" button.', 'mark-complete-gate-for-h5p' ),
-			'locked'   => __( 'Please complete the H5P activity to enable this button.', 'mark-complete-gate-for-h5p' ),
-			'unlocked' => __( 'You can now mark this lesson as complete.', 'mark-complete-gate-for-h5p' ),
-			'progress' => /* translators: 1: activities done, 2: activities on the page */ __( 'H5P activities completed: %1$d of %2$d', 'mark-complete-gate-for-h5p' ),
+			'message'  => __( 'Please complete the H5P activity to enable the "Mark Complete" button.', 'aikellogg-mark-complete-gate' ),
+			'locked'   => __( 'Please complete the H5P activity to enable this button.', 'aikellogg-mark-complete-gate' ),
+			'unlocked' => __( 'You can now mark this lesson as complete.', 'aikellogg-mark-complete-gate' ),
+			'progress' => /* translators: 1: activities done, 2: activities on the page */ __( 'H5P activities completed: %1$d of %2$d', 'aikellogg-mark-complete-gate' ),
 		)
 	);
 }

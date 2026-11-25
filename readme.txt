@@ -1,15 +1,15 @@
-=== Mark Complete Gate for H5P in LearnDash ===
+=== AIKellogg Mark Complete Gate ===
 Contributors: pfkellogg
 Tags: h5p, learndash, mark complete, lms, elearning
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: h5p
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Keeps LearnDash's Mark Complete button locked until the learner has completed every H5P activity on the lesson or topic.
+For H5P in LearnDash: keeps LearnDash's Mark Complete button locked until the learner has completed every H5P activity on the lesson or topic.
 
 == Description ==
 
@@ -43,7 +43,7 @@ H5P is a registered trademark of H5P Group. LearnDash is a trademark of its owne
 == Installation ==
 
 1. Install and activate **H5P** (Interactive Content - H5P) and **LearnDash**.
-2. Install **Mark Complete Gate for H5P in LearnDash** from **Plugins → Add New**, or upload the zip, and activate it.
+2. Install **AIKellogg Mark Complete Gate** from **Plugins → Add New**, or upload the zip, and activate it.
 3. That's all: open a lesson or topic with H5P content as a learner; the Mark Complete button is locked until the H5P is done.
 
 == Frequently Asked Questions ==
@@ -75,6 +75,9 @@ It's a convenience, not a lock the server enforces: see "Good to know" above.
 3. The shortcode in the block editor: `[mark_complete_gate ignore="3"]`.
 
 == Changelog ==
+
+= 1.1.1 =
+* New name for the WordPress.org directory: AIKellogg Mark Complete Gate (address aikellogg-mark-complete-gate); text domain to match.
 
 = 1.1.0 =
 * New name for the WordPress.org directory: Mark Complete Gate for H5P in LearnDash (was H5P Controls LearnDash).
