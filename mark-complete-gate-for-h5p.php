@@ -3,7 +3,7 @@
  * Plugin Name:       AIKellogg Mark Complete Gate
  * Plugin URI:        https://aikellogg.com/#/mark-complete-gate
  * Description:       On LearnDash lessons and topics with H5P content, the Mark Complete button stays locked until the learner has completed every H5P activity on the page.
- * Version:           1.1.1
+ * Version:           1.1.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Requires Plugins:  h5p
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MCGH_VERSION', '1.1.1' );
+define( 'MCGH_VERSION', '1.1.2' );
 
 /**
  * The post types whose pages have LearnDash's Mark Complete button: lessons and topics (filterable).
@@ -33,14 +33,17 @@ function mcgh_post_types() {
 }
 
 /**
- * The page's [mark_complete_gate] instruction, if it has one: off, and the H5P IDs to ignore.
+ * The page's [mark_complete_gate] instruction, if it has one: off; what to ignore (H5P IDs or type names); what's
+ * required (a rule such as "3 and (5 or 7)"); and the pass mark, in percent, for activities that give only a score.
  *
- * @return array{off: bool, ignore: int[]}
+ * @return array{off: bool, ignore: string[], require: string, pass: int}
  */
 function mcgh_page_settings() {
 	$settings = array(
-		'off'    => false,
-		'ignore' => array(),
+		'off'     => false,
+		'ignore'  => array(),
+		'require' => '',
+		'pass'    => 100,
 	);
 	$post = get_post();
 	if ( ! $post || ! has_shortcode( $post->post_content, 'mark_complete_gate' ) ) {
@@ -54,13 +57,33 @@ function mcgh_page_settings() {
 			if ( in_array( 'off', $atts, true ) || ( isset( $atts['off'] ) && ! in_array( strtolower( (string) $atts['off'] ), array( '0', 'no', 'false' ), true ) ) ) {
 				$settings['off'] = true;
 			}
+			// ignore="3,7" or ignore="accordion, 12": H5P IDs and type names
 			if ( isset( $atts['ignore'] ) ) {
-				$ids                = array_filter( array_map( 'absint', explode( ',', (string) $atts['ignore'] ) ) );
-				$settings['ignore'] = array_values( array_unique( array_merge( $settings['ignore'], $ids ) ) );
+				$words              = preg_split( '/[\s,]+/', strtolower( (string) $atts['ignore'] ), -1, PREG_SPLIT_NO_EMPTY );
+				$words              = array_filter( array_map( 'mcgh_word', $words ) );
+				$settings['ignore'] = array_values( array_unique( array_merge( $settings['ignore'], $words ) ) );
+			}
+			// require="3 and (5 or 7)": IDs, type names, and, or, brackets
+			if ( isset( $atts['require'] ) ) {
+				$settings['require'] = trim( preg_replace( '/[^a-z0-9_.\-\s,()&|]/', '', strtolower( html_entity_decode( (string) $atts['require'], ENT_QUOTES ) ) ) );
+			}
+			// pass="80": the pass mark for activities that give only a score
+			if ( isset( $atts['pass'] ) ) {
+				$settings['pass'] = max( 0, min( 100, absint( $atts['pass'] ) ) );
 			}
 		}
 	}
 	return $settings;
+}
+
+/**
+ * One word of an ignore list: an H5P ID or a type name (letters, digits, dot, dash, underscore).
+ *
+ * @param string $word The word.
+ * @return string
+ */
+function mcgh_word( $word ) {
+	return preg_replace( '/[^a-z0-9_.\-]/', '', strtolower( (string) $word ) );
 }
 
 function mcgh_applies() {
@@ -72,7 +95,8 @@ function mcgh_applies() {
 }
 
 /**
- * [mark_complete_gate ignore="3,7"] or [mark_complete_gate off]: an instruction for this page; it shows nothing.
+ * [mark_complete_gate ignore="3,7"], [mark_complete_gate require="3 and (5 or 7)"], [mark_complete_gate pass="80"]
+ * or [mark_complete_gate off]: an instruction for this page; it shows nothing.
  */
 add_shortcode(
 	'mark_complete_gate',
@@ -90,11 +114,14 @@ function mcgh_enqueue() {
 	$url = plugin_dir_url( __FILE__ );
 	wp_enqueue_style( 'mark-complete-gate', $url . 'css/mark-complete-gate.css', array(), MCGH_VERSION );
 	wp_enqueue_script( 'mark-complete-gate', $url . 'js/mark-complete-gate.js', array(), MCGH_VERSION, true );
+	$settings = mcgh_page_settings();
 	wp_localize_script(
 		'mark-complete-gate',
 		'MCGH',
 		array(
-			'ignore'   => mcgh_page_settings()['ignore'],
+			'ignore'   => $settings['ignore'],
+			'require'  => $settings['require'],
+			'pass'     => $settings['pass'],
 			'message'  => __( 'Please complete the H5P activity to enable the "Mark Complete" button.', 'aikellogg-mark-complete-gate' ),
 			'locked'   => __( 'Please complete the H5P activity to enable this button.', 'aikellogg-mark-complete-gate' ),
 			'unlocked' => __( 'You can now mark this lesson as complete.', 'aikellogg-mark-complete-gate' ),
