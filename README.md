@@ -11,6 +11,7 @@ A free WordPress plugin: LearnDash's **Mark Complete** button stays locked until
 - Works with H5P in its iframe: it listens to H5P's own xAPI completion events.
 - Activities that never report (Accordion, Dialog Cards, Guess the Answer, Audio, display-only content) are watched on the page with a MutationObserver: every panel opened, every card turned, the answer revealed, played to the end, seen.
 - Per page: `[mark_complete_gate ignore="3, accordion"]`, `[mark_complete_gate require="3 and (5 or 7)"]` (IDs or types, and/or/brackets), `[mark_complete_gate pass="80"]` or `[mark_complete_gate off]`.
+- Plays well with others: it takes away only its own lock, so LearnDash's forced timer and other plugins' locks stay; passes are remembered in the learner's browser; `[elc_h5p id="3" ignore]` is read as `ignore="3"`.
 - A clean slate: when a user is permanently deleted, their H5P scores, saved progress and activity log are deleted too.
 
 The lock is client-side. For gating the server enforces, see H5P Gating & Scoring for LearnDash (a separate, paid plugin).

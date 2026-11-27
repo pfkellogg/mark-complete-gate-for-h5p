@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: h5p
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,6 +18,8 @@ When a LearnDash lesson or topic has H5P content, learners can click **Mark Comp
 * **No setup.** Activate it: every lesson and topic with H5P is gated. Pages without H5P are left alone.
 * **Passing counts.** A scored activity counts once the learner passes it; a wrong answer keeps the button locked, and the learner can retry. When an activity gives only a score (Fill in the Blanks, Drag the Words, Flashcards, Interactive Video), the score must reach the pass mark: full marks, or what you set with `pass="80"`.
 * **Every kind of H5P.** Activities that never report a result are watched on the page instead: an Accordion counts once every panel has been opened, Dialog Cards once every card has been turned, Guess the Answer once the answer is revealed, Audio once it has played to the end, display-only content once it has been on screen. Kinds not tested yet count once the learner has worked with them.
+* **Plays well with others.** It adds its own lock and takes away only its own: LearnDash's forced lesson timer and other plugins that lock Mark Complete keep theirs.
+* **Remembers.** Once a learner has done an activity, a reload doesn't lock it again (remembered in their browser, per user).
 * **Several activities.** With more than one H5P on the page, all of them must be done; a message shows how many are complete.
 * **Works with H5P's embeds.** It listens to H5P's own completion events (xAPI), so it works when H5P runs inside its frame, the usual way in WordPress.
 * **A clear message.** Above the locked button: "Please complete the H5P activity to enable the Mark Complete button." It goes away once the button unlocks.
@@ -35,6 +37,8 @@ Put the shortcode anywhere in a lesson or topic (a Shortcode block works in the 
 * `[mark_complete_gate require="3 and (5 or 7)"]` — exactly what must be done: item 3, and item 5 or item 7. Use `and`, `or` and brackets (`&&`, `||` and commas work too); a word is a type (`require="quiz or 12"`: every Question Set on the page, or item 12); `all` is everything not ignored.
 * `[mark_complete_gate pass="80"]` — the pass mark, in percent, for activities that give only a score (100 unless you say).
 * `[mark_complete_gate off]` — no gate on this page.
+
+Pages made for eLearning Complete's H5P for LearnDash keep working: `[elc_h5p id="3" ignore]` means the same as `ignore="3"`.
 
 Without `require`, every H5P on the page counts, except what `ignore` leaves out. Type names are the H5P type without "H5P.": `multichoice`, `truefalse`, `blanks`, `dragtext`, `dragquestion`, `markthewords`, `singlechoiceset`, `questionset`, `summary`, `essay`, `findthewords`, `flashcards`, `dialogcards`, `accordion`, `interactivevideo`, `audio`, `guesstheanswer`, `questionnaire`; also `quiz`, `video`, `multiplechoice`, `fillintheblanks`, `dragthewords` and `draganddrop`.
 
@@ -66,6 +70,10 @@ It doesn't need to report anything: the gate watches the page. An Accordion coun
 
 Multiple Choice, True/False, Mark the Words, Drag and Drop, Single Choice Set, Question Set, Find the Words, Summary, Questionnaire, Essay, Fill in the Blanks, Drag the Words, Flashcards, Interactive Video, Accordion, Dialog Cards, Guess the Answer, Audio and Greeting Card. Essay follows its own pass setting. An Interactive Video counts when the learner presses Submit at the end with a passing score; a video with no questions counts when it has played to the end.
 
+= Does it work with LearnDash's forced timer and other plugins? =
+
+Yes. The button unlocks only when every lock is off: the H5P activities, LearnDash's forced lesson timer, and any other plugin that locks Mark Complete.
+
 = Does a wrong answer unlock the button? =
 
 No: a scored activity must be passed, or reach full marks (or your `pass="..."`) when it gives only a score. The learner can use H5P's Retry and try again.
@@ -85,6 +93,11 @@ It's a convenience, not a lock the server enforces: see "Good to know" above.
 3. The shortcode in the block editor: `[mark_complete_gate ignore="3"]`.
 
 == Changelog ==
+
+= 1.1.3 =
+* Fixed: unlocking the button could undo other locks on it, such as LearnDash's forced lesson timer or another plugin's. The gate now takes away only its own lock.
+* New: a learner's passes are remembered in their browser, so a reload doesn't lock again what they already did.
+* New: `[elc_h5p id="3" ignore]` (eLearning Complete's H5P for LearnDash) is read as `ignore="3"`.
 
 = 1.1.2 =
 * Fixed: Fill in the Blanks, Drag the Words, Flashcards and Interactive Video unlocked the button even with wrong answers (they give a score but no pass or fail). Their score must now reach the pass mark: full marks, or `pass="80"`.

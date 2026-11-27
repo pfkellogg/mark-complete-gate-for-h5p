@@ -128,7 +128,26 @@
 			window.console.warn( 'Mark Complete Gate: couldn\'t read require="' + TEXT.require + '"; all activities count.' );
 		}
 
+		// passes remembered in this browser, per user: a reload doesn't lock again what the learner already did
+		var KEY = 'mcgh:' + ( TEXT.user || 0 ) + ':';
+		function remembered( id ) {
+			try {
+				return window.localStorage.getItem( KEY + id ) === '1';
+			} catch ( e ) {
+				return false;
+			}
+		}
+		function remember( id ) {
+			try {
+				window.localStorage.setItem( KEY + id, '1' );
+			} catch ( e ) { /* private mode: it's only a convenience */ }
+		}
 		var done = {};
+		ids.forEach( function ( id ) {
+			if ( TEXT.user && remembered( id ) ) {
+				done[ id ] = true;
+			}
+		} );
 		function isDone( id ) {
 			return !! done[ id ] || !! ignored[ id ] || ! items[ id ]; // an ID that isn't on the page can't hold the learner up
 		}
@@ -185,11 +204,43 @@
 		var anchor = first.closest( 'form' ) || first;
 		anchor.parentNode.insertBefore( message, anchor );
 
+		// The button can be locked by others too: LearnDash's own forced timer, other plugins. This gate adds its lock
+		// and takes away only its own: a MutationObserver on each button keeps what the others last wanted.
+		var ours = true;
+		function track( b ) {
+			if ( b.mcgh ) {
+				return b.mcgh;
+			}
+			var t = { b: b, others: b.disabled };
+			t.mo = new MutationObserver( function () {
+				t.others = b.hasAttribute( 'disabled' ); // someone else wrote it (our own writes are taken out below)
+				apply( t );
+			} );
+			t.mo.observe( b, { attributes: true, attributeFilter: [ 'disabled' ] } );
+			b.mcgh = t;
+			return t;
+		}
+		function apply( t ) {
+			if ( t.mo.takeRecords().length ) {
+				t.others = t.b.hasAttribute( 'disabled' ); // someone else's write, not seen yet
+			}
+			var want = ours || t.others;
+			if ( t.b.hasAttribute( 'disabled' ) !== want ) {
+				if ( want ) {
+					t.b.setAttribute( 'disabled', 'disabled' );
+				} else {
+					t.b.removeAttribute( 'disabled' );
+				}
+			}
+			t.mo.takeRecords(); // that write was ours
+			t.b.setAttribute( 'aria-disabled', want ? 'true' : 'false' );
+		}
+
 		function setLocked( locked ) {
+			ours = locked;
 			buttons().forEach( function ( b ) {
-				b.disabled = locked;
+				apply( track( b ) );
 				b.classList.toggle( 'mcgh-locked', locked );
-				b.setAttribute( 'aria-disabled', locked ? 'true' : 'false' );
 				b.title = locked ? ( TEXT.locked || '' ) : ( TEXT.unlocked || '' );
 			} );
 			var n = watched.filter( function ( id ) {
@@ -206,6 +257,9 @@
 				return;
 			}
 			done[ id ] = true;
+			if ( TEXT.user ) {
+				remember( id );
+			}
 			setLocked( ! evaluate( rule ) );
 		}
 
